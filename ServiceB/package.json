@@ -1,0 +1,17 @@
+{
+  "name": "serviceb",
+  "version": "1.0.0",
+  "description": "An unlucky service forcibly rehosted as part of digital transformation",
+  "main": "app.js",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "robcrowley",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.3",
+    "request": "^2.87.0",
+    "request-promise-native": "^1.0.5"
+  }
+}

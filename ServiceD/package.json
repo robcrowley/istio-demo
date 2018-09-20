@@ -1,0 +1,15 @@
+{
+  "name": "serviced",
+  "version": "1.0.0",
+  "description": "A seldom called service",
+  "main": "app.js",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "robcrowley",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}

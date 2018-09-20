@@ -1,0 +1,229 @@
+##################################################################################################
+# Service A
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicea
+  labels:
+    app: servicea
+  annotations:
+    auth.istio.io/3003: NONE
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    name: http
+  selector:
+    app: servicea
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: servicea-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: servicea
+        version: v1
+    spec:
+      containers:
+      - name: servicea
+        image: servicea:1.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 50
+          periodSeconds: 5
+---
+##################################################################################################
+# Service B
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: serviceb
+  labels:
+    app: serviceb
+  annotations:
+    auth.istio.io/3003: NONE
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    name: http
+  selector:
+    app: serviceb
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: serviceb-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: serviceb
+        version: v1
+    spec:
+      containers:
+      - name: serviceb
+        image: serviceb:1.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 50
+          periodSeconds: 5
+---
+##################################################################################################
+# Service C
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicec
+  labels:
+    app: servicec
+  annotations:
+    auth.istio.io/3003: NONE
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    name: http
+  selector:
+    app: servicec
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: servicec-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: servicec
+        version: v1
+        phase: live
+    spec:
+      containers:
+      - name: servicec
+        image: servicec:1.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 50
+          periodSeconds: 5
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: servicec-v2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: servicec
+        version: v2
+        phase: live
+    spec:
+      containers:
+      - name: servicec
+        image: servicec:2.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 50
+          periodSeconds: 5
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: servicec-v3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: servicec
+        version: v3
+        phase: test
+    spec:
+      containers:
+      - name: servicec
+        image: servicec:3.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 50
+          periodSeconds: 5
+---
+##################################################################################################
+# Service D
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: serviced
+  labels:
+    app: serviced
+  annotations:
+    auth.istio.io/3003: NONE
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    name: http
+  selector:
+    app: serviced
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: serviced-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: serviced
+        version: v1
+    spec:
+      containers:
+      - name: serviced
+        image: serviced:1.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 50
+          periodSeconds: 5
+---

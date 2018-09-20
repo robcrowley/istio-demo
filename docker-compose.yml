@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  servicea:
+    ports: 
+      - 8080:3000
+    networks:
+      - webnet
+    build:
+      context: ./servicea
+      dockerfile: Dockerfile
+      args:
+        service_version: 1.0.0
+  serviceb:
+    ports:
+      - 8081:3000
+    networks:
+      - webnet
+    build:
+      context: ./serviceb
+      dockerfile: Dockerfile
+      args:
+        service_version: 1.0.0
+  servicec:
+    ports:
+      - 8082:3000
+    networks:
+      - webnet
+    build:
+      context: ./servicec
+      dockerfile: Dockerfile
+      args:
+        service_version: 1.0.0
+  serviced:
+    ports:
+      - 8084:3000
+    networks:
+      - webnet
+    build:
+      context: ./serviced
+      dockerfile: Dockerfile
+      args:
+        service_version: 1.0.0
+networks:
+  webnet:

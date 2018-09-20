@@ -1,0 +1,122 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: lonely-services-gateway-rule
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - lonely-services-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /a
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 3000
+            host: servicea
+    - match:
+        - uri:
+            prefix: /c
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 3000
+            host: servicec
+            subset: v2
+          weight: 100
+    - match:
+        - uri:
+            prefix: /d
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 3000
+            host: serviced
+            subset: v1
+          weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: servicec-rule
+spec:
+  hosts:
+    - servicec # interpreted as servicec.default.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: servicec
+            subset: v2
+          weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: serviced-rule
+spec:
+  hosts:
+    - serviced # interpreted as serviced.default.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: serviced
+          weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: servicea-destination
+spec:
+  host: servicea # interpreted as servicea.default.svc.cluster.local
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: serviceb-destination
+spec:
+  host: serviceb # interpreted as serviceb.default.svc.cluster.local
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: servicec-destination
+spec:
+  host: servicec # interpreted as servicec.default.svc.cluster.local
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+  - name: live
+    labels:
+      phase: live
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: serviced-destination
+spec:
+  host: serviced # interpreted as serviced.default.svc.cluster.local
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
