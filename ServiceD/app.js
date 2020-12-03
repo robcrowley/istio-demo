@@ -1,25 +1,30 @@
-const express = require('express');
+const fastify = require('fastify')
+const hyperid = require('hyperid')
 
-const svc = express();
+const service = fastify({ logger: true, genReqId: hyperid() });
 
-svc.get('/', (req, res) => {
-    console.log('Processing request...');
-
-    res
-        .set('X-API-Version', process.env.SERVICE_VERSION)
-        .json({
+service.get('/', (request, reply) => {
+    reply
+        .header('X-API-Version', process.env.SERVICE_VERSION)
+        .send({
             version: process.env.SERVICE_VERSION
         });
 });
 
-svc.listen(3000, () => console.log('Service D running on port 3000'));
+const startService = async (service, port) => {
+    try {
+        await service.listen(port, '0.0.0.0')
+        service.log.info(`server listening on ${service.server.address().port}`)
+    } catch (err) {
+        service.log.error(err)
+        process.exit(1)
+    }
+}
 
-const probe = express();
+startService(service, 3000)
 
-probe.get('/health', (req, res) => {
-    res.json({
-        status: 'Service D is healthy'
-    });
-});
+const probe = fastify();
 
-probe.listen(3003, () => console.log('Service D health check running on port 3003'));
+probe.get('/health', (request, reply) => ({ status: 'Service D is healthy' }))
+
+startService(probe, 3003)

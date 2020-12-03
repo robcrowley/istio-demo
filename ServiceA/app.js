@@ -1,45 +1,40 @@
-const express = require('express');
-var rp = require('request-promise-native');
+const fastify = require('fastify')
+const fetch = require('node-fetch')
+const hyperid = require('hyperid')
 
-const svc = express();
+const service = fastify({ logger: true, genReqId: hyperid() });
 
-svc.get('/', (req, res) => {
-
-    console.log('Processing request...');
-
-    const pb = rp({
-        uri: 'http://serviceb:3000',
-        resolveWithFullResponse: true
-    });
-
-    const pc = rp({
-        uri: 'http://servicec:3000',
-        resolveWithFullResponse: true
-    })
+service.get('/', async (request, reply) => {
+    const pb = await fetch('http://serviceb:3000')
+    const pc = await fetch('http://servicec:3000')
 
     Promise.all([pb, pc])
         .then((values) => {
-            res
-                .set('X-API-Version', process.env.SERVICE_VERSION)
-                .json({
-                    version: process.env.SERVICE_VERSION
-                });
+            const errors = values.filter(value => !value.ok)
+            if (!errors.length) {
+                reply
+                    .header('X-API-Version', process.env.SERVICE_VERSION)
+                    .send({ version: process.env.SERVICE_VERSION });
+            } else {
+                reply.code(500).send({ error: `Upstream call failed` });
+            }
         })
-        .catch((err) => {
-            res.status(500).json({
-                error: err.message
-            });
-        });
-});
+})
 
-svc.listen(3000, () => console.log('Service A running on port 3000'));
+const startService = async (service, port) => {
+    try {
+        await service.listen(port, '0.0.0.0')
+        service.log.info(`server listening on ${service.server.address().port}`)
+    } catch (err) {
+        service.log.error(err)
+        process.exit(1)
+    }
+}
 
-const probe = express();
+startService(service, 3000)
 
-probe.get('/health', (req, res) => {
-    res.json({
-        status: 'Service A is healthy'
-    });
-});
+const probe = fastify();
 
-probe.listen(3003, () => console.log('Service A health check running on port 3003'));
+probe.get('/health', async (request, reply) => ({ status: 'Service A is healthy' }))
+
+startService(probe, 3003)

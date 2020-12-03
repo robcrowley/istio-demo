@@ -30,10 +30,10 @@ services:
       context: ./servicec
       dockerfile: Dockerfile
       args:
-        service_version: 1.0.0
+        service_version: 2.0.0
   serviced:
     ports:
-      - 8084:3000
+      - 8083:3000
     networks:
       - webnet
     build:

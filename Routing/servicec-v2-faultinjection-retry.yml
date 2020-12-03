@@ -33,7 +33,8 @@ spec:
     - fault:
         abort:
           httpStatus: 400
-          percent: 25
+          percentage:
+            value: 25
       match:
         - uri:
             prefix: /d
@@ -75,21 +76,9 @@ spec:
     - fault:
         abort:
           httpStatus: 400
-          percent: 25
+          percentage:
+            value: 25
       route:
-        - destination:
-            host: serviced
-          weight: 100
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: serviced-rule
-spec:
-  hosts:
-    - serviced # interpreted as serviced.default.svc.cluster.local
-  http:
-    - route:
         - destination:
             host: serviced
           weight: 100

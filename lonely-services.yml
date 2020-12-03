@@ -17,12 +17,19 @@ spec:
   selector:
     app: servicea
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: servicea-v1
+  labels:
+    app: servicea
+    version: v1
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: servicea
+      version: v1
   template:
     metadata:
       labels:
@@ -61,12 +68,19 @@ spec:
   selector:
     app: serviceb
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: serviceb-v1
+  labels:
+    app: serviceb
+    version: v1
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: serviceb
+      version: v1
   template:
     metadata:
       labels:
@@ -105,12 +119,21 @@ spec:
   selector:
     app: servicec
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: servicec-v1
+  labels:
+    app: servicec
+    version: v1
+    phase: live
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: servicec
+      version: v1
+      phase: live
   template:
     metadata:
       labels:
@@ -131,12 +154,21 @@ spec:
           initialDelaySeconds: 50
           periodSeconds: 5
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: servicec-v2
+  labels:
+    app: servicec
+    version: v2
+    phase: live
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: servicec
+      version: v2
+      phase: live
   template:
     metadata:
       labels:
@@ -157,12 +189,21 @@ spec:
           initialDelaySeconds: 50
           periodSeconds: 5
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: servicec-v3
+  labels:
+    app: servicec
+    version: v3
+    phase: test
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: servicec
+      version: v3
+      phase: test
   template:
     metadata:
       labels:
@@ -202,12 +243,19 @@ spec:
   selector:
     app: serviced
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: serviced-v1
+  labels:
+    app: serviced
+    version: v1
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: serviced
+      version: v1
   template:
     metadata:
       labels:

@@ -1,41 +1,37 @@
-const express = require('express');
-var rp = require('request-promise-native');
+const fastify = require('fastify')
+const fetch = require('node-fetch')
+const hyperid = require('hyperid')
 
-const svc = express();
+const service = fastify({ logger: true, genReqId: hyperid() });
 
-svc.get('/', (req, res) => {
+service.get('/', async (request, reply) => {
+    const pc = await fetch('http://servicec:3000')
 
-    console.log('Processing request...');
+    service.log.info(`Upstream call to Service C returned '${pc.status}'`);
 
-    var options = {
-        uri: 'http://servicec:3000',
-        resolveWithFullResponse: true
-    };
+    if (pc.ok) {
+        reply
+            .header('X-API-Version', process.env.SERVICE_VERSION)
+            .send({ version: process.env.SERVICE_VERSION });
+    } else {
+        reply.code(500).send({ error: `Upstream call to Service C failed` });
+    }
+})
 
-    rp(options)
-        .then((response) => {
-            console.log(`Upstream call to Service C on '${options.uri}' returned '${response.statusCode}'`);
-            res
-                .set('X-API-Version', process.env.SERVICE_VERSION)
-                .json({
-                    version: process.env.SERVICE_VERSION
-                });
-        })
-        .catch((err) => {
-            res.status(500).json({
-                error: err.message
-            });
-        });
-});
+const startService = async (service, port) => {
+    try {
+        await service.listen(port, '0.0.0.0')
+        service.log.info(`server listening on ${service.server.address().port}`)
+    } catch (err) {
+        service.log.error(err)
+        process.exit(1)
+    }
+}
 
-svc.listen(3000, () => console.log('Service B running on port 3000'));
+startService(service, 3000)
 
-const probe = express();
+const probe = fastify();
 
-probe.get('/health', (req, res) => {
-    res.json({
-        status: 'Service B is healthy'
-    });
-});
+probe.get('/health', async (request, reply) => ({ status: 'Service B is healthy' }))
 
-probe.listen(3003, () => console.log('Service B health check running on port 3003'));
+startService(probe, 3003)

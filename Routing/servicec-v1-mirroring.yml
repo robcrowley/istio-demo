@@ -74,7 +74,6 @@ spec:
             host: serviced
           weight: 100
 ---
----
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:

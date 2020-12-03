@@ -1,54 +1,48 @@
-const express = require('express');
-var rp = require('request-promise-native');
+const fastify = require('fastify')
+const fetch = require('node-fetch')
+const hyperid = require('hyperid')
 
-const svc = express();
+const service = fastify({ logger: true, genReqId: hyperid() });
 
-svc.get('/', (req, res) => {
-    console.log('Processing request...');
-    console.log(`Host Header: ${req.get('Host')}`);
+service.get('/', async (request, reply) => {
+    service.log.info(`Hostname: ${request.hostname}`);
 
     if (process.env.SERVICE_VERSION === "2.0.0") {
 
-        var options = {
-            uri: 'http://serviced:3000',
-            resolveWithFullResponse: true
-        };
+        const pc = await fetch('http://serviced:3000')
 
-        rp(options)
-            .then((response) => {
-                console.log(`Upstream call to Service D returned '${response.statusCode}'`);
-                res
-                    .set('X-API-Version', process.env.SERVICE_VERSION)
-                    .json({
-                        version: process.env.SERVICE_VERSION
-                    });
-            })
-            .catch((err) => {
-                res.status(500).json({
-                    error: err.message
-                });
-            });
+        service.log.info(`Upstream call to Service D returned '${pc.status}'`);
+
+        if (pc.ok) {
+            reply
+                .header('X-API-Version', process.env.SERVICE_VERSION)
+                .send({ version: process.env.SERVICE_VERSION });
+        } else {
+            reply.code(500).send({ error: `Upstream call to Service D failed` });
+        }
     } else if (process.env.SERVICE_VERSION === "3.0.0") {
-        res.status(503).json({
-            error: 'Transient server issue. Best to try again later'
-        });
+        reply.code(503).send({ error: 'Transient server issue. Best to try again later' });
     } else {
-        res
-            .set('X-API-Version', process.env.SERVICE_VERSION)
-            .json({
-                version: process.env.SERVICE_VERSION
-            });
+        reply
+            .header('X-API-Version', process.env.SERVICE_VERSION)
+            .send({ version: process.env.SERVICE_VERSION });
     }
 });
 
-svc.listen(3000, () => console.log('Service C running on port 3000'));
+const startService = async (service, port) => {
+    try {
+        await service.listen(port, '0.0.0.0')
+        service.log.info(`server listening on ${service.server.address().port}`)
+    } catch (err) {
+        service.log.error(err)
+        process.exit(1)
+    }
+}
 
-const probe = express();
+startService(service, 3000)
 
-probe.get('/health', (req, res) => {
-    res.json({
-        status: 'Service C is healthy'
-    });
-});
+const probe = fastify();
 
-probe.listen(3003, () => console.log('Service C health check running on port 3003'));
+probe.get('/health', async (request, reply) => ({ status: 'Service C is healthy' }))
+
+startService(probe, 3003)
