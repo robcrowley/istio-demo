@@ -21,7 +21,7 @@ service.get('/', async (request, reply) => {
             reply.code(500).send({ error: `Upstream call to Service D failed` });
         }
     } else if (process.env.SERVICE_VERSION === "3.0.0") {
-        reply.code(503).send({ error: 'Transient server issue. Best to try again later' });
+        reply.code(500).send({ error: 'Transient server issue. Best to try again later' });
     } else {
         reply
             .header('X-API-Version', process.env.SERVICE_VERSION)

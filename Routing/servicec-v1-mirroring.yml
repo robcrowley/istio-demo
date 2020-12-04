@@ -48,7 +48,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: servicec-rule
+  name: servicec
 spec:
   hosts:
     - servicec # interpreted as servicec.default.svc.cluster.local
@@ -64,7 +64,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: serviced-rule
+  name: serviced
 spec:
   hosts:
     - serviced # interpreted as serviced.default.svc.cluster.local
@@ -77,7 +77,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: servicea-destination
+  name: servicea-rule
 spec:
   host: servicea # interpreted as servicea.default.svc.cluster.local
   subsets:
@@ -88,7 +88,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: serviceb-destination
+  name: serviceb-rule
 spec:
   host: serviceb # interpreted as serviceb.default.svc.cluster.local
   subsets:
@@ -99,7 +99,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: servicec-destination
+  name: servicec-rule
 spec:
   host: servicec # interpreted as servicec.default.svc.cluster.local
   subsets:
@@ -116,7 +116,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: serviced-destination
+  name: serviced-rule
 spec:
   host: serviced # interpreted as serviced.default.svc.cluster.local
   subsets:
